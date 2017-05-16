@@ -1,0 +1,13 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "XiIfX9A6D6TheN+vNgoLKlLp+mc=",
+			"path": "golang.org/x/arch/x86/x86asm",
+			"revision": "9dd86654181264cc7c76c929f3df20d11251e23a",
+			"revisionTime": "2017-04-29T16:36:29Z"
+		}
+	],
+	"rootPath": "github.com/aarzilli/badnext"
+}
