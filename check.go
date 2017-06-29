@@ -80,7 +80,7 @@ func check(fn *Function, succs *Successors, exe *Executable) int {
 
 func isJump(fn *Function, inst AsmInstruction) (destIdx int, unconditional bool) {
 	switch inst.Inst.Op {
-	case x86asm.JA, x86asm.JAE, x86asm.JB, x86asm.JBE, x86asm.JCXZ, x86asm.JE, x86asm.JECXZ, x86asm.JG, x86asm.JGE, x86asm.JL, x86asm.JLE, x86asm.JNE, x86asm.JNO, x86asm.JNP, x86asm.JNS, x86asm.JO, x86asm.JP, x86asm.JRCXZ, x86asm.JS:
+	case x86asm.JA, x86asm.JAE, x86asm.JB, x86asm.JBE, x86asm.JCXZ, x86asm.JE, x86asm.JECXZ, x86asm.JG, x86asm.JGE, x86asm.JL, x86asm.JLE, x86asm.JNE, x86asm.JNO, x86asm.JNP, x86asm.JNS, x86asm.JO, x86asm.JP, x86asm.JRCXZ, x86asm.JS, x86asm.LOOPE, x86asm.LOOPNE, x86asm.LOOP:
 		//ok
 	case x86asm.JMP, x86asm.LJMP:
 		unconditional = true
