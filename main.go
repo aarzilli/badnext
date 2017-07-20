@@ -17,7 +17,7 @@ func usage() {
 
 For each function matching pattern lists all acceptable successors of each line.
 
-	badnext check <pattern> <executable>
+	badnext [-v] check <pattern> <executable>
 	
 Checks all functions matching the pattern, prints all mismatches between successors of each line found in the executable and what badnext thinks is acceptable.
 
@@ -148,11 +148,18 @@ func (set *PosSet) String() string {
 }
 
 func main() {
-	if len(os.Args) < 4 {
+	args := os.Args
+	
+	if len(args) > 1 && args[1] == "-v" {
+		verboseCheck = true
+		args = args[1:]
+	}
+	
+	if len(args) < 4 {
 		usage()
 	}
 
-	cmd, pattern, exepath := os.Args[1], os.Args[2], os.Args[3]
+	cmd, pattern, exepath := args[1], args[2], args[3]
 	exe := openExe(exepath)
 	funcs := exe.FunctionsMatching(pattern)
 	files := AllFiles(funcs)

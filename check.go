@@ -14,7 +14,7 @@ const (
 	OutOfFunctionPenalty = 100 // moves to a different line, in a different function?!
 )
 
-var verboseCheck = true
+var verboseCheck = false
 
 func check(fn *Function, succs *Successors, exe *Executable) int {
 	if fn.Decl == nil {
