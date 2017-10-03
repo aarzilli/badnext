@@ -144,9 +144,9 @@ func (s *Successors) checkTransition(start, end Pos, pc uint64) int {
 	endgroup := s.G[end]
 
 	// do not report exit from if/switch
-	if a := s.Sq[start]; a.Contains(end) {
+	/*if a := s.Sq[start]; a.Contains(end) {
 		return 0
-	}
+	}*/
 
 	fmt.Fprintf(os.Stderr, "%s:%d: (%#x) continues to %s:%d, expected:\n", start.File, start.Line, pc, end.File, end.Line)
 
