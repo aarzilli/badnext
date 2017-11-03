@@ -14,15 +14,11 @@ const (
 	OutOfFunctionPenalty = 100 // moves to a different line, in a different function?!
 )
 
-var verboseCheck = false
-
 func check(fn *Function, succs *Successors, exe *Executable) int {
 	if fn.Decl == nil {
 		return 0
 	}
-	if verboseCheck {
-		fmt.Fprintf(os.Stderr, "FUNCTION %s\n", fn.Name)
-	}
+	printf(C, "FUNCTION %s\n", fn.Name)
 
 	var curpos Pos
 	var penalty int
@@ -44,9 +40,7 @@ func check(fn *Function, succs *Successors, exe *Executable) int {
 	}
 
 	for _, inst := range fn.Text {
-		if verboseCheck {
-			fmt.Fprintf(os.Stderr, "%s:%d\t%#x\t%s\n", filepath.Base(inst.Pos.File), inst.Pos.Line, inst.Pc, x86asm.GoSyntax(inst.Inst, inst.Pc, symlookup))
-		}
+		printf(C, "%s:%d\t%#x\t%s\n", filepath.Base(inst.Pos.File), inst.Pos.Line, inst.Pc, x86asm.GoSyntax(inst.Inst, inst.Pc, symlookup))
 		if curpos.File == "" && curpos.Line == 0 {
 			curpos = inst.Pos
 		}
@@ -88,9 +82,7 @@ func check(fn *Function, succs *Successors, exe *Executable) int {
 		t(curpos, Pos{"", -1}, fn.Text[len(fn.Text)-1].Pc)
 	}
 
-	if verboseCheck {
-		fmt.Fprintf(os.Stderr, "\n")
-	}
+	printf(C, "\n")
 
 	return penalty
 }
@@ -147,8 +139,9 @@ func (s *Successors) checkTransition(start, end Pos, pc uint64) int {
 	/*if a := s.Sq[start]; a.Contains(end) {
 		return 0
 	}*/
-
-	fmt.Fprintf(os.Stderr, "%s:%d: (%#x) continues to %s:%d, expected:\n", start.File, start.Line, pc, end.File, end.Line)
+	
+	printf(S|C, "%s:%d: continues to %s:%d\n", start.File, start.Line, end.File, end.Line)
+	printf(C, "\tat %#x, expected:\n", pc)
 
 	penalty := OutOfFunctionPenalty
 	if end.File == "" && end.Line == -1 {
@@ -156,7 +149,7 @@ func (s *Successors) checkTransition(start, end Pos, pc uint64) int {
 	}
 
 	for k := range s.S[start].Set {
-		fmt.Fprintf(os.Stderr, "\t%s:%d\n", k.File, k.Line)
+		printf(C, "\t%s:%d\n", k.File, k.Line)
 		p := 0
 		if s.G[k] == endgroup {
 			p = OutOfOrderPenalty
@@ -171,13 +164,13 @@ func (s *Successors) checkTransition(start, end Pos, pc uint64) int {
 	}
 
 	if a := s.Sq[start]; a.Contains(end) {
-		fmt.Fprintf(os.Stderr, "\t(exit from if or switch)\n")
+		printf(C, "\t(exit from if or switch)\n")
 		if penalty > OutOfOrderPenalty {
 			penalty = OutOfOrderPenalty
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "\tpenalty: +%d\n", penalty)
+	printf(C, "\tpenalty: +%d\n", penalty)
 	return penalty
 }
 

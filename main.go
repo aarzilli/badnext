@@ -17,7 +17,7 @@ func usage() {
 
 For each function matching pattern lists all acceptable successors of each line.
 
-	badnext [-v] check <pattern> <executable>
+	badnext check <pattern> <executable> <tag>
 	
 Checks all functions matching the pattern, prints all mismatches between successors of each line found in the executable and what badnext thinks is acceptable.
 
@@ -147,19 +147,31 @@ func (set *PosSet) String() string {
 	return buf.String()
 }
 
-func main() {
-	args := os.Args
-	
-	if len(args) > 1 && args[1] == "-v" {
-		verboseCheck = true
-		args = args[1:]
+var simpleOutput *os.File
+var complexOutput *os.File
+
+type OutputKind uint8
+
+const (
+	S OutputKind = 1 << iota
+	C
+)
+
+func printf(k OutputKind, fmtstr string, args ...interface{}) {
+	if k&S != 0 {
+		fmt.Fprintf(simpleOutput, fmtstr, args...)
 	}
-	
-	if len(args) < 4 {
+	if k&C != 0 {
+		fmt.Fprintf(complexOutput, fmtstr, args...)
+	}
+}
+
+func main() {	
+	if len(os.Args) < 4 {
 		usage()
 	}
 
-	cmd, pattern, exepath := args[1], args[2], args[3]
+	cmd, pattern, exepath := os.Args[1], os.Args[2], os.Args[3]
 	exe := openExe(exepath)
 	funcs := exe.FunctionsMatching(pattern)
 	files := AllFiles(funcs)
@@ -175,6 +187,17 @@ func main() {
 			printSuccessors(&succs, fn)
 		}
 	case "check":
+		if len(os.Args) < 5 {
+			usage()
+		}
+		
+		tag := os.Args[4]
+		var err error
+		simpleOutput, err = os.Create(fmt.Sprintf("%s.simple.txt", tag))
+		must(err)
+		complexOutput, err = os.Create(fmt.Sprintf("%s.full.txt", tag))
+		must(err)
+		
 		penalty := 0
 		for i := range funcs {
 			penalty += check(&funcs[i], &succs, exe)
@@ -189,7 +212,7 @@ func main() {
 			lineCount += end.Line - start.Line
 		}
 		if penalty > 0 {
-			fmt.Fprintf(os.Stderr, "Average penalty per line: %d/%d = %g\n", penalty, lineCount, float64(penalty)/float64(lineCount))
+			printf(S|C, "Average penalty per line: %d/%d = %g\n", penalty, lineCount, float64(penalty)/float64(lineCount))
 			os.Exit(1)
 		}
 	default:
