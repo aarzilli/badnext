@@ -140,8 +140,8 @@ func (s *Successors) checkTransition(start, end Pos, pc uint64) int {
 		return 0
 	}*/
 	
-	printf(S|C, "%s:%d: continues to %s:%d\n", start.File, start.Line, end.File, end.Line)
-	printf(C, "\tat %#x, expected:\n", pc)
+	printf(S|C, "%s:%d:%#x: continues to %s:%d\n", start.File, start.Line, pc, end.File, end.Line)
+	printf(C, "\texpected:\n")
 
 	penalty := OutOfFunctionPenalty
 	if end.File == "" && end.Line == -1 {
